@@ -1,5 +1,6 @@
 import re
-import cProfile, pstats, StringIO
+import cProfile, pstats
+
 from traceback import format_exc
 from datetime import datetime
 
@@ -10,6 +11,12 @@ from guardian.utils import get_anonymous_user
 
 from rest_framework.authentication import TokenAuthentication
 
+try:
+    # Python 3
+    from io import StringIO
+except ImportError:
+    # Python 2
+    from StringIO import StringIO
 
 class AuthenticationHeaderExtensionMiddleware(object):
     """
@@ -129,7 +136,7 @@ class ProfilingMiddleware(object):
     def process_response(self, request, response):
         if hasattr(request, 'profiler'):
             request.profiler.disable()
-            s = StringIO.StringIO()
+            s = StringIO()
             sortby = getattr(request, 'profile-sorting', 'cumulative')
             ps = pstats.Stats(request.profiler, stream=s).sort_stats(sortby)
             ps.print_stats()
