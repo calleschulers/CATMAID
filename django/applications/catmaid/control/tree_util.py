@@ -4,8 +4,16 @@ from operator import itemgetter
 from networkx import Graph, DiGraph
 from collections import defaultdict
 from math import sqrt
-from itertools import izip, islice
+from itertools import islice
 from catmaid.models import Treenode
+
+try:
+    # Python 2
+    from itertools import izip
+except:
+    # Python 3
+    izip = zip
+
 
 def find_root(tree):
     """ Search and return the first node that has zero predecessors.
