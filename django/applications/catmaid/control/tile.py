@@ -1,5 +1,4 @@
 import os
-import cStringIO
 from contextlib import closing
 import logging
 import numpy as np
@@ -10,6 +9,13 @@ from django.http import HttpResponse
 from catmaid.models import UserRole
 from catmaid.control.common import ConfigurationError
 from catmaid.control.authentication import requires_user_role
+
+try:
+    # Python 3
+    from io import StringIO
+except ImportError:
+    # Python 2
+    from StringIO import StringIO
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +104,7 @@ def put_tile(request, project_id=None, stack_id=None):
 
     with closing(h5py.File(fpath, 'a')) as hfile:
         hdfpath = '/labels/scale/' + str(int(scale)) + '/data'
-        image_from_canvas = np.asarray( Image.open( cStringIO.StringIO(base64.decodestring(image)) ) )
+        image_from_canvas = np.asarray( Image.open( StringIO(base64.decodestring(image)) ) )
         hfile[hdfpath][y:y+height,x:x+width,z] = image_from_canvas[:,:,0]
 
     return HttpResponse("Image pushed to HDF5.", content_type="plain/text")
