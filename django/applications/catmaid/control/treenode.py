@@ -475,7 +475,7 @@ def update_node_radii(node_ids, radii, cursor=None):
     cursor = cursor or connection.cursor()
 
     # Create a list of the form [(node id, radius), ...]
-    node_radii = "(" + "),(".join(map(lambda (k,v): "{},{}".format(k,v),
+    node_radii = "(" + "),(".join(map(lambda k,v: "{},{}".format(k,v),
             zip(node_ids, radii))) + ")"
 
     cursor.execute('''
