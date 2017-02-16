@@ -78,4 +78,14 @@
   CATMAID.TooManyWebGlContextsError.prototype = Object.create(CATMAID.Error.prototype);
   CATMAID.TooManyWebGlContextsError.prototype.constructor = CATMAID.TooManyWebGlContextsError;
 
+  /**
+   * An error type to indicate a pre-condition for some action is not met.
+   */
+  CATMAID.PreConditionError = function(message, detail) {
+    CATMAID.Error.call(this, message, detail);
+  };
+
+  CATMAID.PreConditionError.prototype = Object.create(CATMAID.Error.prototype);
+  CATMAID.PreConditionError.prototype.constructor = CATMAID.PreConditionError;
+
 })(CATMAID);
