@@ -964,6 +964,42 @@ class DataView(models.Model):
                 dv.save()
 
 
+class SamplerState(models.Model):
+    name = models.TextField()
+    description = models.TextField()
+
+
+class Sampler(UserFocusedModel):
+    interval_length = models.FloatField()
+    sampler_state = models.ForeignKey(SamplerState, on_delete=models.CASCADE)
+    skeleton = models.ForeignKey(ClassInstance, db_index=True, on_delete=models.CASCADE)
+
+
+class SamplerIntervalState(models.Model):
+    name = models.TextField()
+    description = models.TextField()
+
+
+class SamplerInterval(UserFocusedModel):
+    domain_id = models.ForeignKey('SamplerDomain', db_index=True, on_delete=models.CASCADE)
+    interval_state = models.ForeignKey(SamplerIntervalState, db_index=True, on_delete=models.CASCADE)
+    start_node = models.ForeignKey(Treenode, on_delete=models.CASCADE,
+            related_name="sampler_interval_start_node_set")
+    end_node = models.ForeignKey(Treenode, on_delete=models.CASCADE,
+            related_name="sampler_interval_end_node_set")
+
+class SamplerDomainType(models.Model):
+    name = models.TextField()
+    description = models.TextField()
+
+
+class SamplerDomain(UserFocusedModel):
+    sampler = models.ForeignKey(Sampler)
+    start_node = models.ForeignKey(Treenode, on_delete=models.CASCADE)
+    domain_type = models.ForeignKey(SamplerDomainType, db_index=True, on_delete=models.CASCADE)
+    parent_interval = models.ForeignKey(SamplerInterval, null=True, db_index=True, on_delete=models.CASCADE)
+
+
 class UserProfile(models.Model):
     """ A class that stores a set of custom user preferences.
     See: http://digitaldreamer.net/blog/2010/12/8/custom-user-profile-and-extend-user-admin-django/

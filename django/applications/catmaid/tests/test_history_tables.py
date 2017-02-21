@@ -32,6 +32,13 @@ class HistoryTableTests(TransactionTestCase):
         # CATMAID tables
         'broken_slice',
         'cardinality_restriction',
+        'catmaid_sampler',
+        'catmaid_samplerdomain',
+        'catmaid_samplerdomainend',
+        'catmaid_samplerdomaintype',
+        'catmaid_samplerinterval',
+        'catmaid_samplerintervalstate',
+        'catmaid_samplerstate',
         'catmaid_userprofile',
         'catmaid_volume',
         'change_request',
