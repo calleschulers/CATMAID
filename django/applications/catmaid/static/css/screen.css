@@ -1181,6 +1181,10 @@ img.missing-image:before {
   width: 100%;
 }
 
+.table-widget p {
+  margin: 0;
+}
+
 .synapse-fractions svg {
   position: absolute;
   left: 0;
