@@ -44,8 +44,9 @@ needed_sampler_interval_states = {
 }
 needed_sampler_domain_types = {
     'backbone': 'The backbone of a neuron',
-    'twig':     'A small distal fragment',
-    'bounton':  'A particular type of morphology'
+    'bouton':   'A particular type of morphology',
+    'covering': 'Complete neuron',
+    'twig':     'A small distal fragment'
 }
 
 
