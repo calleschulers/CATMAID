@@ -17,8 +17,8 @@ from django.views.decorators.cache import never_cache
 
 from rest_framework.decorators import api_view
 
-from catmaid.models import Project, UserRole, Class, ClassInstance, Review, \
-        ClassInstanceClassInstance, Relation, Treenode, TreenodeConnector
+from catmaid.models import (Project, UserRole, Class, ClassInstance, Review,
+        ClassInstanceClassInstance, Relation, Sampler, Treenode, TreenodeConnector)
 from catmaid.objects import Skeleton, SkeletonGroup, \
         compartmentalize_skeletongroup_by_edgecount, \
         compartmentalize_skeletongroup_by_confidence
@@ -608,6 +608,12 @@ def split_skeleton(request, project_id=None):
     downstream_annotation_map = json.loads(request.POST.get('downstream_annotation_map'))
     cursor = connection.cursor()
 
+    # Make sure this skeleton is not used in a sampler
+    n_samplers = Sampler.objects.filter(skeleton_id=skeleton_id).count()
+    if n_samplers > 0:
+        raise Exception('Can\'t split, skeleton {} is used in {} sampler(s)'.format(
+                skeleton_id, n_samplers))
+
     # Check if the treenode is root!
     if not treenode.parent:
         return JsonResponse({'error': 'Can\'t split at the root node: it doesn\'t have a parent.'})
@@ -1188,6 +1194,13 @@ def _reroot_skeleton(treenode_id, project_id):
         response_on_error = 'Failed to select treenode with id %s.' % treenode_id
         rootnode = Treenode.objects.get(id=treenode_id, project=project_id)
 
+        # Make sure this skeleton is not used in a sampler
+        n_samplers = Sampler.objects.filter(skeleton=rootnode.skeleton).count()
+        response_on_error = 'Neuron is used in a sampler, can\'t reroot'
+        if n_samplers > 0:
+            raise Exception('Skeleton {} is used in {} sampler(s)'.format(
+                    rootnode.skeleton_id, n_samplers))
+
         # Obtain the treenode from the response
         first_parent = rootnode.parent_id
 
@@ -1239,7 +1252,7 @@ def _reroot_skeleton(treenode_id, project_id):
         return rootnode
 
     except Exception as e:
-        raise Exception(response_on_error + ':' + str(e))
+        raise Exception('{}: {}'.format(response_on_error,  str(e)))
 
 
 def _root_as_parent(oid):
@@ -1328,6 +1341,16 @@ def _join_skeleton(user, from_treenode_id, to_treenode_id, project_id,
 
         to_skid = to_treenode.skeleton_id
         to_neuron = _get_neuronname_from_skeletonid( project_id, to_skid )
+
+        # Make sure this skeleton is not used in a sampler
+        n_from_samplers = Sampler.objects.filter(skeleton_id=from_skid).count()
+        if n_from_samplers > 0:
+            raise Exception('Can\'t merge, skeleton {} is used in {} sampler(s)'.format(
+                    from_skid, n_from_samplers))
+        n_to_samplers = Sampler.objects.filter(skeleton_id=to_skid).count()
+        if n_to_samplers > 0:
+            raise Exception('Can\'t merge, skeleton {} is used in {} sampler(s)'.format(
+                    to_skid, n_to_samplers))
 
         if from_skid == to_skid:
             raise Exception('Cannot join treenodes of the same skeleton, this would introduce a loop.')
