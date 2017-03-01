@@ -4130,6 +4130,9 @@
     var CTYPES = this.CTYPES;
     this.line_material = new THREE.LineBasicMaterial({color: 0xffff00, opacity: 1.0, linewidth: options.skeleton_line_width});
 
+    // Optional override material for a particular skeleton
+    this.overrideMaterial = null;
+
     // Connector links
     this.geometry = {};
     this.geometry[CTYPES[0]] = new THREE.Geometry();
@@ -4508,6 +4511,16 @@
   WebGLApplication.prototype.Space.prototype.Skeleton.prototype.updateSkeletonColor = function(options) {
     var node_weights,
         arbor;
+
+    if (this.overrideMaterial) {
+      // If there is an override material set, make sure it is used as line material
+      this.line_material = this.actor.neurite.material = this.overrideMaterial;
+      if (CATMAID.tools.isFn(this.line_material.refresh)) {
+        this.line_material.refresh();
+      }
+      return;
+    }
+
     if ('near_active_node_z_camera' !== options.shading_method &&
         'near_active_node_z_project' !== options.shading_method &&
         this.line_material instanceof CATMAID.ShaderLineBasicMaterial) {
